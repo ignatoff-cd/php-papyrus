@@ -59,10 +59,20 @@ while(true)
         $ipPool[$remote_ip] = 1;
         print_r($ipPool);
         $ipPoolSize = count($ipPool);
-    } else{
+    }
+    elseif('SIZE' == substr($buf,0,4)){
+        $params = explode('|',$buf);
+        $ipPool[$remote_ip] = array('width' => $params[1], 'height'=>$params[2]);
+    }
+    else{
         if(isset($ipPoolSize) && $ipPoolSize > 1 ){
             foreach($ipPool as $bindIp => $isSet){
                 if($bindIp != $remote_ip){
+                    $command = (object) json_decode($buf);
+                    $command->pointX = round($command->pointX * $ipPool[$bindIp]['width'] / $ipPool[$remote_ip]['width'],6);
+                    $command->pointY = round($command->pointY * $ipPool[$bindIp]['height'] / $ipPool[$remote_ip]['height'],6);
+                    $buf = json_encode($command);
+                    echo "SEND-TO --> $bindIp : $remoteClientPort -- " . $buf."\n";
                     $r = socket_sendto($serverSock , $buf, strlen($buf) , 0 , $bindIp , $remoteClientPort);
                 }
             }
