@@ -2,7 +2,7 @@
 
 error_reporting(~E_WARNING);
 
-$ip = getHostByName(getHostName());
+$ip = gethostbyname(gethostname());
 echo 'Client IP: '. $ip ."\n";
 
 $clientPort = 11500;
@@ -11,7 +11,6 @@ $remoteClientPort = 50001;
 
 $ipPool = array();
 
-//Create a UDP socket
 if(!($clientSock  = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP)))
 {
     $errorcode = socket_last_error();
@@ -32,7 +31,6 @@ if(!($serverSock  = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP)))
  
 echo "Server socket created \n";
 
-// Bind the source address
 if( !socket_bind($clientSock , "0.0.0.0" , $clientPort) )
 {
     $errorcode = socket_last_error();
@@ -52,15 +50,9 @@ if( !socket_bind($serverSock , $ip, $serverPort) )
 }
  
 echo "Server socket bind OK \n";
-/*$mysqli = new mysqli('localhost', 'root', '12345,rabbit', 'test');
-if (!($stmt = $mysqli->prepare("insert into queue (ip, command) values (inet_aton(?), ?)"))){
-    echo  $mysqli->errno . " " . $mysqli->error . "\n";
-}*/
-//Do some communication, this loop can handle multiple clients
-while(1)
+
+while(true)
 {
-   
-    //Receive some data
     $r = socket_recvfrom($clientSock , $buf, 1024, 0, $remote_ip, $remote_port);
     echo "$remote_ip : $remote_port -- " . $buf."\n";
     if($buf == "REGISTER"){
@@ -76,14 +68,5 @@ while(1)
             }
         }
     }
-
-    //$stmt->bind_param("ss", $remote_ip, $buf);
-    //$stmt->execute();
-
-     
-    //Send back the data to the client
-    //$resp = "OK " . $buf ;
-    //$r = socket_sendto($clientSock , $resp, strlen($resp) , 0 , $remote_ip , $remote_port);
 }
-//$mysqli->close();
 socket_close($clientSock );
