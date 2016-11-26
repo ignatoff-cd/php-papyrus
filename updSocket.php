@@ -55,7 +55,12 @@ while(true)
 {
     $r = socket_recvfrom($clientSock , $buf, 1024, 0, $remote_ip, $remote_port);
     echo "$remote_ip : $remote_port -- " . $buf."\n";
-    if($buf == "REGISTER"){
+    
+    if($buf == "IS_SERVER"){
+        $r = socket_sendto($serverSock , $ip, strlen($ip) , 0 , $remote_ip , $remote_port);
+        echo "SEND-TO --> $remote_ip : $remote_port -- " . $ip."\n";
+    }    
+    elseif($buf == "REGISTER"){
         $ipPool[$remote_ip] = 1;
         print_r($ipPool);
         $ipPoolSize = count($ipPool);
